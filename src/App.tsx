@@ -17,30 +17,22 @@ function App() {
   const [data, setData] = useState<{projects: Project[], tasks: Task[]} | null>(null)
 
   useEffect(() => {
-    // In a real scenario, this would fetch from the Cloudflare tunnel API
-    // For now, we'll mock the data from our internal state until the tunnel is fully wired
-    fetch('https://src-addresses-attractive-delivers.trycloudflare.com/tasks')
+    fetch('https://src-addresses-attractive-delivers.trycloudflare.com/data')
       .then(res => res.json())
-      .then(tasks => {
-         // Mocking project structure for the UI update
+      .then(result => {
          setData({
-            projects: [
-              { name: 'EchoVault', status: 'Active', progress: 100, description: 'NeuralCortex 2.0 (Search Complete)' },
-              { name: 'GhostOS', status: 'In Progress', progress: 80, description: 'Meta-Kernel & Agent Autonomy' },
-              { name: 'Aetheria', status: 'Active', progress: 20, description: 'Reality Orchestration Engine' },
-              { name: 'Cells-Kanban', status: 'In Progress', progress: 75, description: 'Visual Command Center' }
-            ],
-            tasks: tasks
+            projects: result.projects.map((p: any) => ({
+              ...p,
+              status: p.status === 'active' ? 'Active' : 'In Progress'
+            })),
+            tasks: result.tasks
          })
       })
       .catch(() => {
         // Fallback for visual demonstration
         setData({
           projects: [
-            { name: 'EchoVault', status: 'Active', progress: 100, description: 'NeuralCortex 2.0 (Search Complete)' },
-            { name: 'GhostOS', status: 'In Progress', progress: 80, description: 'Meta-Kernel & Agent Autonomy' },
-            { name: 'Aetheria', status: 'Active', progress: 20, description: 'Reality Orchestration Engine' },
-            { name: 'Cells-Kanban', status: 'In Progress', progress: 75, description: 'Visual Command Center' }
+            { name: 'System Error', status: 'Offline', progress: 0, description: 'Failed to connect to NeuralNexus' }
           ],
           tasks: []
         })
@@ -90,18 +82,32 @@ function App() {
               {col}
             </h3>
             <div className="space-y-3">
-              {data.tasks.length === 0 ? (
+              {data.tasks.filter(t => {
+                const status = t.status.toLowerCase();
+                if (col === 'Backlog') return status === 'pending';
+                if (col === 'Processing') return status === 'in_progress';
+                if (col === 'Verified') return status === 'done';
+                return false;
+              }).length === 0 ? (
                 <div className="text-[10px] text-white/10 italic">No tasks in stream...</div>
               ) : (
-                data.tasks.map(task => (
-                  <div key={task.id} className="p-3 bg-black border border-white/10 hover:border-cyan-500/40 transition-colors group relative">
-                     <h4 className="text-[11px] font-medium text-white/70 group-hover:text-cyan-400">{task.title}</h4>
-                     <div className="mt-3 flex justify-between items-center text-[8px] font-mono text-white/20 uppercase">
-                        <span>{task.id}</span>
-                        <span className="text-cyan-900 group-hover:text-cyan-700 transition-colors">Interlinked_</span>
-                     </div>
-                  </div>
-                ))
+                data.tasks
+                  .filter(t => {
+                    const status = t.status.toLowerCase();
+                    if (col === 'Backlog') return status === 'pending';
+                    if (col === 'Processing') return status === 'in_progress';
+                    if (col === 'Verified') return status === 'done';
+                    return false;
+                  })
+                  .map(task => (
+                    <div key={task.id} className="p-3 bg-black border border-white/10 hover:border-cyan-500/40 transition-colors group relative">
+                       <h4 className="text-[11px] font-medium text-white/70 group-hover:text-cyan-400">{task.title}</h4>
+                       <div className="mt-3 flex justify-between items-center text-[8px] font-mono text-white/20 uppercase">
+                          <span>{task.id}</span>
+                          <span className="text-cyan-900 group-hover:text-cyan-700 transition-colors">Interlinked_</span>
+                       </div>
+                    </div>
+                  ))
               )}
             </div>
           </div>

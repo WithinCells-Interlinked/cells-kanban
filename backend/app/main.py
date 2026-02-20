@@ -17,13 +17,17 @@ def read_root():
 import json
 import os
 
-@app.get("/tasks")
-def get_tasks():
+@app.get("/data")
+def get_data():
     dashboard_path = "/home/pi/clawd/projects/status-dashboard/data.json"
     if not os.path.exists(dashboard_path):
-        return []
+        return {"projects": [], "tasks": []}
     
     with open(dashboard_path, "r") as f:
         data = json.load(f)
-        return data.get("tasks", [])
+        return {
+            "projects": data.get("projects", []),
+            "tasks": data.get("tasks", [])
+        }
+
 
