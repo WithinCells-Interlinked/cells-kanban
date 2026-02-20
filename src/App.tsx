@@ -54,21 +54,23 @@ function App() {
         </div>
       </header>
 
-      <section className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
+      <section className="grid grid-cols-1 gap-6 mb-10">
         {data.projects.map(project => (
-          <div key={project.name} className="bg-white/5 border border-white/10 p-4 rounded-sm hover:border-cyan-500/30 transition-all">
-            <div className="flex justify-between items-start mb-2">
-              <h2 className="text-sm font-bold text-white/90">{project.name}</h2>
-              <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${project.status === 'Active' ? 'bg-green-500/10 text-green-500' : 'bg-cyan-500/10 text-cyan-500'}`}>
-                {project.status}
-              </span>
+          <div key={project.name} className="bg-white/5 border border-white/10 p-6 rounded-sm hover:border-cyan-500/30 transition-all flex justify-between items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="text-xl font-bold text-white/90">{project.name}</h2>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500 animate-pulse">
+                  SYSTEM_ACTIVE
+                </span>
+              </div>
+              <p className="text-xs text-white/40 leading-tight">{project.description}</p>
             </div>
-            <p className="text-[10px] text-white/40 mb-4 h-8 leading-tight">{project.description}</p>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+            <div className="text-right">
+              <div className="text-[10px] font-mono text-cyan-400 mb-2 uppercase tracking-widest">Efficiency_Index: {project.progress}%</div>
+              <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden">
                 <div className="h-full bg-cyan-600 transition-all duration-1000" style={{ width: `${project.progress}%` }}></div>
               </div>
-              <span className="text-[10px] font-mono text-cyan-400">{project.progress}%</span>
             </div>
           </div>
         ))}
