@@ -13,8 +13,14 @@ interface Task {
   status: string
 }
 
+interface Notification {
+  id: number
+  message: string
+  type: string
+}
+
 function App() {
-  const [data, setData] = useState<{projects: Project[], tasks: Task[]} | null>(null)
+  const [data, setData] = useState<{projects: Project[], tasks: Task[], notifications: Notification[]} | null>(null)
 
   useEffect(() => {
     fetch('https://src-addresses-attractive-delivers.trycloudflare.com/data')
@@ -25,7 +31,8 @@ function App() {
               ...p,
               status: p.status === 'active' ? 'Active' : 'In Progress'
             })),
-            tasks: result.tasks
+            tasks: result.tasks,
+            notifications: result.notifications || []
          })
       })
       .catch(() => {
@@ -34,7 +41,8 @@ function App() {
           projects: [
             { name: 'System Error', status: 'Offline', progress: 0, description: 'Failed to connect to NeuralNexus' }
           ],
-          tasks: []
+          tasks: [],
+          notifications: [{ id: 0, message: "CRITICAL: API_CONNECTION_LOST", type: "alert" }]
         })
       })
   }, [])
@@ -48,9 +56,16 @@ function App() {
           <h1 className="text-3xl font-black tracking-tighter text-cyan-500 uppercase">Cells_Intelligence_Nexus</h1>
           <p className="text-white/40 text-xs mt-1 uppercase tracking-widest">Autonomous Project Orchestration v1.0</p>
         </div>
-        <div className="text-right text-[10px] text-green-500/50 font-mono uppercase tracking-tighter">
-          System_Status: Operational<br/>
-          Heartbeat: 300s_Interval
+        <div className="flex flex-col items-end gap-2">
+          <div className="text-right text-[10px] text-green-500/50 font-mono uppercase tracking-tighter">
+            System_Status: Operational<br/>
+            Heartbeat: 300s_Interval
+          </div>
+          {data.notifications.map(n => (
+            <div key={n.id} className={`text-[9px] px-2 py-1 rounded-sm border ${n.type === 'alert' ? 'bg-red-500/10 border-red-500/50 text-red-400' : 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400'} animate-pulse`}>
+              {n.message}
+            </div>
+          ))}
         </div>
       </header>
 
