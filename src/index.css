@@ -1,7 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-surgical-black: #0a0a0a;
+  --color-neon-blue: #00f3ff;
+}
 
 body {
-  @apply bg-[#0a0a0a] text-white antialiased selection:bg-cyan-500/30;
+  @apply bg-[#050505] text-white antialiased selection:bg-cyan-500/30;
 }
