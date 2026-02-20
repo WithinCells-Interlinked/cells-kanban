@@ -11,6 +11,7 @@ interface Task {
   id: string
   title: string
   status: string
+  logs?: string[]
 }
 
 interface Notification {
@@ -246,10 +247,21 @@ function App() {
               <div className="space-y-3">
                 <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Operation_Logs</h3>
                 <div className="bg-black/50 border border-white/5 p-4 rounded-sm font-mono text-[10px] text-slate-400 space-y-2 max-h-64 overflow-y-auto">
-                   <div className="flex gap-2"><span className="text-cyan-900">1.</span> <span>Initializing task context for {selectedTask.id}...</span></div>
-                   <div className="flex gap-2"><span className="text-cyan-900">2.</span> <span>Executing surgical logic update...</span></div>
-                   <div className="flex gap-2"><span className="text-cyan-900">3.</span> <span>Syncing with Intelligence Nexus...</span></div>
-                   {selectedTask.status === 'done' && <div className="flex gap-2 text-green-900/50 italic"><span className="text-green-900">4.</span> <span>Verification successful. Task consolidated.</span></div>}
+                   {!selectedTask.logs || selectedTask.logs.length === 0 ? (
+                     <>
+                       <div className="flex gap-2"><span className="text-cyan-900">1.</span> <span>Initializing task context for {selectedTask.id}...</span></div>
+                       <div className="flex gap-2"><span className="text-cyan-900">2.</span> <span>Executing surgical logic update...</span></div>
+                       <div className="flex gap-2"><span className="text-cyan-900">3.</span> <span>Syncing with Intelligence Nexus...</span></div>
+                       {selectedTask.status === 'done' && <div className="flex gap-2 text-green-900/50 italic"><span className="text-green-900">4.</span> <span>Verification successful. Task consolidated.</span></div>}
+                     </>
+                   ) : (
+                     selectedTask.logs.map((log, i) => (
+                       <div key={i} className="flex gap-2">
+                         <span className="text-cyan-900">{i + 1}.</span>
+                         <span>{log}</span>
+                       </div>
+                     ))
+                   )}
                 </div>
               </div>
             </div>
