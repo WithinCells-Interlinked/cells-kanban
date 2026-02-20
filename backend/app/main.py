@@ -31,11 +31,25 @@ def read_root():
 import json
 import os
 
+import psutil
+
 @app.get("/data")
 def get_data():
     dashboard_path = "/home/pi/clawd/projects/status-dashboard/data.json"
+    
+    # System metrics
+    cpu_usage = psutil.cpu_percent(interval=None)
+    memory = psutil.virtual_memory()
+    disk = psutil.disk_usage('/')
+    
+    system_metrics = {
+        "cpu": cpu_usage,
+        "memory": memory.percent,
+        "disk": disk.percent
+    }
+    
     if not os.path.exists(dashboard_path):
-        return {"projects": [], "tasks": [], "notifications": [], "history": []}
+        return {"projects": [], "tasks": [], "notifications": [], "history": [], "metrics": system_metrics}
     
     with open(dashboard_path, "r") as f:
         data = json.load(f)
@@ -49,7 +63,8 @@ def get_data():
             "history": data.get("history", [
                 {"id": 1, "time": "00:50", "event": "Otimização de hardware concluída"},
                 {"id": 2, "time": "00:55", "event": "Túnel Cloudflare estabilizado"}
-            ])
+            ]),
+            "metrics": system_metrics
         }
 
 

@@ -25,12 +25,19 @@ interface HistoryItem {
   event: string
 }
 
+interface Metrics {
+  cpu: number
+  memory: number
+  disk: number
+}
+
 function App() {
-  const [data, setData] = useState<{projects: Project[], tasks: Task[], notifications: Notification[], history: HistoryItem[], telemetry?: string} | null>(null)
+  const [data, setData] = useState<{projects: Project[], tasks: Task[], notifications: Notification[], history: HistoryItem[], metrics?: Metrics, telemetry?: string} | null>(null)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
   useEffect(() => {
     const fetchData = () => {
-      fetch('https://src-addresses-attractive-delivers.trycloudflare.com/data')
+      fetch('https://installations-pills-connection-clothing.trycloudflare.com/data')
         .then(res => {
           const processTime = res.headers.get('X-Process-Time');
           return res.json().then(result => ({ result, processTime }));
@@ -44,6 +51,7 @@ function App() {
               tasks: result.tasks,
               notifications: result.notifications || [],
               history: result.history || [],
+              metrics: result.metrics,
               telemetry: processTime ? `${(parseFloat(processTime) * 1000).toFixed(2)}ms` : 'N/A'
            })
         })
@@ -81,6 +89,13 @@ function App() {
           <p className="text-slate-500 text-[10px] uppercase tracking-[0.3em] font-medium">Autonomous Intelligence Command Centre</p>
         </div>
         <div className="flex flex-col items-end gap-3">
+          {data.metrics && (
+            <div className="flex gap-6 text-[9px] font-mono text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2 mb-1">
+              <div className="flex gap-2"><span className="text-slate-700">CPU</span> <span className="text-cyan-400/80">{data.metrics.cpu}%</span></div>
+              <div className="flex gap-2"><span className="text-slate-700">RAM</span> <span className="text-cyan-400/80">{data.metrics.memory}%</span></div>
+              <div className="flex gap-2"><span className="text-slate-700">DSK</span> <span className="text-cyan-400/80">{data.metrics.disk}%</span></div>
+            </div>
+          )}
           <div className="flex items-center gap-4 text-[10px] font-mono tracking-tighter">
             <div className="flex flex-col items-end">
               <span className="text-slate-600 uppercase">Latency</span>
@@ -151,7 +166,11 @@ function App() {
                     return false;
                   })
                   .map(task => (
-                    <div key={task.id} className="group p-4 bg-white/[0.01] border border-white/5 hover:border-cyan-500/30 hover:bg-white/[0.02] transition-all duration-300 rounded-sm relative overflow-hidden">
+                    <div 
+                      key={task.id} 
+                      onClick={() => setSelectedTask(task)}
+                      className="group p-4 bg-white/[0.01] border border-white/5 hover:border-cyan-500/30 hover:bg-white/[0.02] transition-all duration-300 rounded-sm relative overflow-hidden cursor-pointer"
+                    >
                        <div className="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <div className="w-1 h-1 bg-cyan-500 rounded-full animate-ping"></div>
                        </div>
@@ -197,6 +216,54 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Task Modal */}
+      {selectedTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-[#050505] border border-white/10 w-full max-w-2xl rounded-sm overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-start">
+              <div>
+                <span className="text-[10px] font-mono text-cyan-500 uppercase tracking-widest mb-1 block">{selectedTask.id}</span>
+                <h2 className="text-xl font-bold text-white tracking-tight">{selectedTask.title}</h2>
+              </div>
+              <button 
+                onClick={() => setSelectedTask(null)}
+                className="text-slate-500 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-8 space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Execution_Status</h3>
+                <div className="flex items-center gap-3">
+                  <span className={`w-2 h-2 rounded-full ${selectedTask.status === 'done' ? 'bg-green-500' : 'bg-cyan-500 animate-pulse'}`}></span>
+                  <span className="text-xs font-mono text-slate-300 uppercase italic">{selectedTask.status}</span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Operation_Logs</h3>
+                <div className="bg-black/50 border border-white/5 p-4 rounded-sm font-mono text-[10px] text-slate-400 space-y-2 max-h-64 overflow-y-auto">
+                   <div className="flex gap-2"><span className="text-cyan-900">1.</span> <span>Initializing task context for {selectedTask.id}...</span></div>
+                   <div className="flex gap-2"><span className="text-cyan-900">2.</span> <span>Executing surgical logic update...</span></div>
+                   <div className="flex gap-2"><span className="text-cyan-900">3.</span> <span>Syncing with Intelligence Nexus...</span></div>
+                   {selectedTask.status === 'done' && <div className="flex gap-2 text-green-900/50 italic"><span className="text-green-900">4.</span> <span>Verification successful. Task consolidated.</span></div>}
+                </div>
+              </div>
+            </div>
+            <div className="p-6 bg-white/[0.02] border-t border-white/5 flex justify-end">
+               <button 
+                 onClick={() => setSelectedTask(null)}
+                 className="px-6 py-2 bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-widest transition-all rounded-sm"
+               >
+                 Close_Terminal
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
