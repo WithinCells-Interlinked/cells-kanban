@@ -14,7 +14,16 @@ app.add_middleware(
 def read_root():
     return {"status": "online", "service": "Cells-Kanban Backend"}
 
+import json
+import os
+
 @app.get("/tasks")
 def get_tasks():
-    # Placeholder for fetching tasks from Supabase later
-    return []
+    dashboard_path = "/home/pi/clawd/projects/status-dashboard/data.json"
+    if not os.path.exists(dashboard_path):
+        return []
+    
+    with open(dashboard_path, "r") as f:
+        data = json.load(f)
+        return data.get("tasks", [])
+
